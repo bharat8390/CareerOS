@@ -43,3 +43,20 @@ Prerequisites · Quick start · Backend dev · Frontend dev · DB/migrations · 
 - **Owner:** Lead Engineer. **Trigger:** tooling/command/workflow change.
 - **Cadence:** as needed; smoke-tested each milestone by a fresh clone.
 - **Process:** setup changes update this doc + the environment blueprint in the same PR.
+
+## 7. Continuous Integration & Branch Protection
+CI is defined in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) and runs on every PR to `main` and on pushes to `main`. Two parallel jobs:
+
+| Job | Steps |
+|-----|-------|
+| **Frontend** | `npm ci` → `format:check` → `lint` → `typecheck` → `build` → `test` |
+| **Backend** | `pip install -e ".[dev]"` → `ruff check` → `ruff format --check` → `mypy` → `pytest` (coverage uploaded as an artifact) |
+
+Any lint/type/test/build failure fails the run. Coverage is reported but **not gated** yet — a threshold is introduced once domain logic exists (S1-5+).
+
+**Recommended branch-protection rules for `main`** (configure in GitHub → Settings → Branches):
+- Require a pull request before merging (no direct pushes to `main`).
+- Require status checks to pass: **`Frontend (lint · types · build · test)`** and **`Backend (ruff · mypy · pytest)`**.
+- Require branches to be up to date before merging.
+- Require at least one approving review; dismiss stale approvals on new commits.
+- Do not allow force pushes or deletion of `main`.
