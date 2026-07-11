@@ -1,0 +1,28 @@
+{
+  "name": "@careeros/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "CareerOS web frontend (Next.js). Application shell arrives in S1-6.",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"(no web tests yet — added in S1-6)\""
+  },
+  "dependencies": {
+    "next": "16.2.10",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "devDependencies": {
+    "@careeros/config": "*",
+    "@types/node": "20.16.10",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "eslint": "9.39.0",
+    "typescript": "5.6.2"
+  }
+}

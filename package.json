@@ -1,0 +1,33 @@
+{
+  "name": "careeros",
+  "version": "0.0.0",
+  "private": true,
+  "description": "CareerOS — AI-Powered Career Intelligence Platform (monorepo root).",
+  "license": "UNLICENSED",
+  "packageManager": "npm@10.8.2",
+  "engines": {
+    "node": ">=20.18.0 <21",
+    "npm": ">=10"
+  },
+  "workspaces": [
+    "apps/web",
+    "packages/config",
+    "packages/contracts",
+    "packages/ui-tokens"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "3.3.3",
+    "turbo": "2.10.4"
+  },
+  "overrides": {
+    "postcss": "8.5.14"
+  }
+}

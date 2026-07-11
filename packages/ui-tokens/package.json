@@ -1,0 +1,29 @@
+{
+  "name": "@careeros/ui-tokens",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Design tokens for CareerOS (light/dark themes; populated in S1-6).",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "echo \"(no tests in @careeros/ui-tokens yet)\""
+  },
+  "devDependencies": {
+    "@careeros/config": "*",
+    "eslint": "9.39.0",
+    "typescript": "5.6.2"
+  }
+}

@@ -1,0 +1,17 @@
+# Build output & dependencies
+node_modules/
+.next/
+dist/
+coverage/
+.turbo/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Lockfiles & generated
+package-lock.json
+
+# Docs are authored as long-form Markdown; keep formatting as-is
+docs/**/*.md
