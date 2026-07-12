@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import sys
 
 from app.core.context import request_id_ctx
 from app.core.logging import JsonLogFormatter, configure_logging
@@ -42,6 +43,33 @@ def test_formatter_includes_request_id_when_bound() -> None:
 def test_formatter_omits_request_id_when_absent() -> None:
     payload = json.loads(JsonLogFormatter().format(_record("unbound")))
     assert "request_id" not in payload
+
+
+def _record_with_exc_info(exc_info: object) -> logging.LogRecord:
+    record = _record("with exc_info")
+    record.exc_info = exc_info  # type: ignore[assignment]
+    return record
+
+
+def test_formatter_skips_false_exc_info_without_crashing() -> None:
+    # logger.x(..., exc_info=False) sets record.exc_info to the bool False.
+    payload = json.loads(JsonLogFormatter().format(_record_with_exc_info(False)))
+    assert "exc_info" not in payload
+
+
+def test_formatter_skips_empty_exc_info_triple() -> None:
+    # exc_info=True outside an except block yields (None, None, None).
+    payload = json.loads(JsonLogFormatter().format(_record_with_exc_info((None, None, None))))
+    assert "exc_info" not in payload
+
+
+def test_formatter_includes_real_exception() -> None:
+    try:
+        raise ValueError("boom")
+    except ValueError:
+        record = _record_with_exc_info(sys.exc_info())
+    payload = json.loads(JsonLogFormatter().format(record))
+    assert "ValueError: boom" in payload["exc_info"]
 
 
 def test_configure_logging_sets_level_and_json_formatter() -> None:
