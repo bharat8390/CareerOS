@@ -28,7 +28,7 @@ class JsonLogFormatter(logging.Formatter):
         request_id = get_request_id()
         if request_id is not None:
             payload["request_id"] = request_id
-        if record.exc_info is not None:
+        if record.exc_info and record.exc_info[0] is not None:
             payload["exc_info"] = self.formatException(record.exc_info)
         return json.dumps(payload, default=str)
 
