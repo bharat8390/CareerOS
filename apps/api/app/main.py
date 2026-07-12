@@ -14,7 +14,9 @@ from app import __version__
 from app.api.health import health_router
 from app.api.v1 import api_router
 from app.core.config import Settings, get_settings
+from app.core.db import check_database
 from app.core.errors import register_exception_handlers
+from app.core.health import readiness_registry
 from app.core.logging import configure_logging
 from app.core.middleware import RequestIDMiddleware
 
@@ -23,6 +25,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     """Build and configure the CareerOS FastAPI application."""
     settings = settings or get_settings()
     configure_logging(settings.log_level)
+
+    # Register the DB readiness check only when a database is configured, so the
+    # app still boots (and `/ready` stays green) in environments without one.
+    if settings.database_url is not None:
+        readiness_registry.register("database", check_database)
 
     app = FastAPI(
         title=settings.project_name,

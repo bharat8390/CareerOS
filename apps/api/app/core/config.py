@@ -43,6 +43,11 @@ class Settings(BaseSettings):
     # Comma-separated list of allowed CORS origins (empty = none).
     cors_origins: str = ""
 
+    # Async SQLAlchemy URL, e.g. postgresql+asyncpg://user:pass@host:5432/db.
+    # Optional so the app boots without a database; `/ready` reports the DB
+    # unhealthy until it is configured and reachable.
+    database_url: str | None = None
+
     @field_validator("log_level", mode="before")
     @classmethod
     def _normalize_log_level(cls, value: object) -> object:
