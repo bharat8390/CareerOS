@@ -44,6 +44,20 @@ def test_formatter_omits_request_id_when_absent() -> None:
     assert "request_id" not in payload
 
 
+def test_formatter_handles_falsy_exc_info() -> None:
+    record = logging.LogRecord(
+        name="app.test",
+        level=logging.INFO,
+        pathname=__file__,
+        lineno=1,
+        msg="no exception",
+        args=(),
+        exc_info=False,  # type: ignore[arg-type]
+    )
+    payload = json.loads(JsonLogFormatter().format(record))
+    assert "exc_info" not in payload
+
+
 def test_configure_logging_sets_level_and_json_formatter() -> None:
     configure_logging("WARNING")
     root = logging.getLogger()
