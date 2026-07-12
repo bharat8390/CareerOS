@@ -1,8 +1,8 @@
 """CareerOS backend API package.
 
-This package is the root of the FastAPI application. In Story S1-1 it contains only
-package metadata; the application factory, configuration, and modules are introduced
-in later stories (S1-3 onward) per the frozen architecture.
+Root of the FastAPI application. The app factory lives in `app.main:create_app`;
+cross-cutting concerns (config, error envelope, middleware) live in `app.core`.
+Feature modules and persistence arrive in later stories per the frozen architecture.
 """
 
 __version__ = "0.0.0"
