@@ -51,6 +51,22 @@ jobs:
     defaults:
       run:
         working-directory: apps/api
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: careeros
+          POSTGRES_PASSWORD: careeros
+          POSTGRES_DB: careeros
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U careeros"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql+asyncpg://careeros:careeros@localhost:5432/careeros
     steps:
       - uses: actions/checkout@v4
 
@@ -72,6 +88,12 @@ jobs:
 
       - name: MyPy (strict types)
         run: mypy .
+
+      - name: Validate migrations (upgrade → downgrade → upgrade)
+        run: |
+          alembic upgrade head
+          alembic downgrade base
+          alembic upgrade head
 
       - name: Pytest (with coverage)
         run: pytest --cov=app --cov-report=xml --cov-report=term
