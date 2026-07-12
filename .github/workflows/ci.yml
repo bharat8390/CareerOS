@@ -1,12 +1,108 @@
-S1-5 done and CI-green. PR #8: https://github.com/bharat8390/CareerOS/pull/8
+name: CI
 
-- SQLAlchemy 2.0 **async** base (typed `Base` + naming convention), `AsyncEngine`/`async_sessionmaker`, `get_db()` dependency; driver `asyncpg`.
-- `DATABASE_URL` (optional) added; when set, `/ready` runs a `database` check → 200 up / **503 envelope** down.
-- Alembic (async) + baseline migration: extensions `pgcrypto`/`citext`/`pg_trgm` + `feature_flags` and `app_meta` tables (no domain tables).
-- Verified on a real **Postgres 16**: `upgrade → downgrade → upgrade` all clean. 28 tests pass with a live DB; 26 pass / 2 skip hermetic; ruff + mypy strict green.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
-**One manual step (same workflow-scope limit as S1-2):** the AC wants the migration validated against a Postgres service container in CI, which requires editing `.github/workflows/ci.yml` — I can't push workflow files. I've attached the updated `ci.yml` (adds a `postgres:16` service + a `DATABASE_URL` env + an `alembic upgrade→downgrade→upgrade` step). To apply: open `.github/workflows/ci.yml` on GitHub → Edit → replace with the attached contents → commit. Until then CI runs the hermetic suite (integration tests auto-skip), which is green.
+# Cancel superseded runs on the same ref to save CI minutes.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
-Then merge PR #8 (Squash and merge) and reply **approve** to start S1-6 (frontend shell + design tokens + light/dark). Note: S1-6 is a frontend/UI story, so after it I'll offer to test it end-to-end in the browser.
+permissions:
+  contents: read
 
-ATTACHMENT:{"url":"https://app.devin.ai/attachments/9af54c95-37a5-4857-80ec-195f6aef32f2/careeros-ci-s1-5.yml","fileSize":2545}
+jobs:
+  frontend:
+    name: Frontend (lint · types · build · test)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prettier (format check)
+        run: npm run format:check
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: TypeScript (typecheck)
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm run test
+
+  backend:
+    name: Backend (ruff · mypy · pytest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: careeros
+          POSTGRES_PASSWORD: careeros
+          POSTGRES_DB: careeros
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U careeros"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      APP_ENV: test
+      DATABASE_URL: postgresql+asyncpg://careeros:careeros@localhost:5432/careeros
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: apps/api/.python-version
+          cache: pip
+          cache-dependency-path: apps/api/pyproject.toml
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -e ".[dev]"
+
+      - name: Ruff (lint)
+        run: ruff check .
+
+      - name: Ruff (format check)
+        run: ruff format --check .
+
+      - name: MyPy (strict types)
+        run: mypy .
+
+      - name: Validate migrations (upgrade → downgrade → upgrade)
+        run: |
+          alembic upgrade head
+          alembic downgrade base
+          alembic upgrade head
+
+      - name: Pytest (with coverage)
+        run: pytest --cov=app --cov-report=xml --cov-report=term
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: apps/api/coverage.xml
+          if-no-files-found: ignore
