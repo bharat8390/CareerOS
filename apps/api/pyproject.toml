@@ -5,17 +5,19 @@ build-backend = "hatchling.build"
 [project]
 name = "careeros-api"
 version = "0.0.0"
-description = "CareerOS backend API (FastAPI): app factory, typed config, and error envelope."
+description = "CareerOS backend API (FastAPI): app factory, config, error envelope, and database base."
 readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "UNLICENSED" }
-# Runtime dependencies are added per story as they are first needed
-# (SQLAlchemy/Alembic arrive in S1-5).
+# Runtime dependencies are added per story as they are first needed.
 dependencies = [
   "fastapi==0.139.0",
   "pydantic==2.13.4",
   "pydantic-settings==2.14.2",
   "uvicorn[standard]==0.51.0",
+  "sqlalchemy[asyncio]==2.0.36",
+  "asyncpg==0.30.0",
+  "alembic==1.14.0",
 ]
 
 [project.optional-dependencies]

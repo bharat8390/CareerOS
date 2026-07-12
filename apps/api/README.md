@@ -2,12 +2,27 @@
 
 FastAPI backend for CareerOS.
 
-**Status (S1-4):** the application factory (`create_app`), typed environment config,
-request-id middleware, the standard error envelope, **`/health` + `/ready` endpoints**,
-and **structured JSON logging** are in place. The database + Alembic (S1-5) and feature
-modules land in later stories per the frozen architecture (`docs/02`, `docs/16`). The
-`/api/v1` router is mounted but has no feature routes yet; readiness checks for real
-dependencies (DB, Redis) are registered by their own stories.
+**Status (S1-5):** the application factory (`create_app`), typed environment config,
+request-id middleware, the standard error envelope, `/health` + `/ready` endpoints,
+structured JSON logging, and the **SQLAlchemy 2.0 async database base + Alembic baseline
+migration** are in place. Feature modules land in later stories per the frozen
+architecture (`docs/02`, `docs/16`). The `/api/v1` router is mounted but has no feature
+routes yet; the Redis readiness check arrives with S1-8.
+
+## Database & migrations
+
+Async SQLAlchemy 2.0 (`asyncpg`). Set `DATABASE_URL` (see `.env.example`) then:
+
+```bash
+cd apps/api && source .venv/bin/activate
+export DATABASE_URL=postgresql+asyncpg://careeros:careeros@localhost:5432/careeros
+alembic upgrade head     # apply the baseline (extensions + feature_flags + app_meta)
+alembic downgrade base   # roll back
+```
+
+The baseline migration enables `pgcrypto`, `citext`, and `pg_trgm` and creates the
+`feature_flags` and `app_meta` infrastructure tables (no domain tables yet). When
+`DATABASE_URL` is set, `/ready` includes a `database` check.
 
 ## Run (dev)
 

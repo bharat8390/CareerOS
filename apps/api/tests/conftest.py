@@ -25,6 +25,8 @@ if TYPE_CHECKING:
 
 @pytest.fixture
 def client() -> Iterator[TestClient]:
-    app = create_app(Settings(app_env="test"))
+    # Explicitly DB-less so the default client is deterministic even when a
+    # DATABASE_URL is present in the environment (e.g. CI's Postgres job).
+    app = create_app(Settings(app_env="test", database_url=None))
     with TestClient(app) as test_client:
         yield test_client
