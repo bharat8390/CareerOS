@@ -2,11 +2,12 @@
 
 FastAPI backend for CareerOS.
 
-**Status (S1-3):** the application factory (`create_app`), typed environment config,
-request-id middleware, and the standard error envelope are in place. Health endpoints
-and structured logging (S1-4), the database + Alembic (S1-5), and feature modules land
-in later stories per the frozen architecture (`docs/02`, `docs/16`). The `/api/v1` router
-is mounted but has no feature routes yet.
+**Status (S1-4):** the application factory (`create_app`), typed environment config,
+request-id middleware, the standard error envelope, **`/health` + `/ready` endpoints**,
+and **structured JSON logging** are in place. The database + Alembic (S1-5) and feature
+modules land in later stories per the frozen architecture (`docs/02`, `docs/16`). The
+`/api/v1` router is mounted but has no feature routes yet; readiness checks for real
+dependencies (DB, Redis) are registered by their own stories.
 
 ## Run (dev)
 
