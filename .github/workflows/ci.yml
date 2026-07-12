@@ -66,6 +66,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
+      APP_ENV: test
       DATABASE_URL: postgresql+asyncpg://careeros:careeros@localhost:5432/careeros
     steps:
       - uses: actions/checkout@v4
